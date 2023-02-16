@@ -73,18 +73,18 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         elif '2d' in args.func:
             num_dims = 2
             X = np.random.uniform(-1, 1, size=(num_samples, num_dims))
+            xx = np.arange(-1, 1, 0.1)
+            yy = np.arange(-1, 1, 0.1)
+            x0, x1 = np.meshgrid(xx, yy)
 
             if args.func == '2d01':
                 # y = np.sin(X[:,0]) + np.cos(X[:,1]) # y(N,)
                 y = np.cos(X[:,0] + X[:,1]) # y(N,)
+                Z = np.cos(x0+x1)
             elif args.func == '2d02':
                 y = np.sinh(X[:,0] + X[:,1])
+                Z = np.sinh(x0+x1)
 
-            xx = np.arange(-1, 1, 0.1)
-            yy = np.arange(-1, 1, 0.1)
-            x0, x1 = np.meshgrid(xx, yy)
-            Z = np.cos(x0+x1)
-        
         else:
             raise SystemExit('\nThe func is wrong')
         
