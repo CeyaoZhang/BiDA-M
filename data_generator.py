@@ -3,6 +3,9 @@ import copy
 
 import numpy as np
 import pandas as pd
+
+import matplotlib
+matplotlib.use('TkAgg') 
 from matplotlib import pyplot as plt
 
 import torch
@@ -66,6 +69,17 @@ def generate_data1(args, noise_seed, sigma, epsilon):
             num_dims = 1
             X = np.random.uniform(1, 140, size=(num_samples, num_dims))
             y = np.log(X).ravel() # y(N,)
+
+        elif args.func == '2d01':
+            num_dims = 2
+            X = np.random.uniform(-1, 1, size=(num_samples, num_dims))
+            # y = np.sin(X[:,0]) + np.cos(X[:,1]) # y(N,)
+            y = np.cos(X[:,0] + X[:,1]) # y(N,)
+
+            xx = np.arange(-1, 1, 0.1)
+            yy = np.arange(-1, 1, 0.1)
+            x0, x1 = np.meshgrid(xx, yy)
+            Z = np.cos(x0+x1)
         
         else:
             raise SystemExit('\nThe func is wrong')
@@ -169,14 +183,11 @@ def generate_data1(args, noise_seed, sigma, epsilon):
                 raise Exception('The noise type is wrong!')
             y_val[outlier_index] += e
 
-
-    
     output_folder = os.path.dirname(os.path.dirname(os.getcwd()))
     output_folder = os.path.join(output_folder, 'adaLoss_results')
     output_folder_ = os.path.dirname(os.getcwd())
     output_folder_ = os.path.join(output_folder_, 'results')
     
-
     fun_name = args.func+'_%dseed_%dnum(%d-%d-%d)'%(args.data_seed, num_samples, num_train, num_val, num_test)
     output_folder = os.path.join(output_folder, fun_name)
     output_folder_ = os.path.join(output_folder_, fun_name)
@@ -215,18 +226,36 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         print(output_folder2)
         
     # print('\n', name, name1, name2)
+    
+    if num_dims == 1:
+        plt.figure()
+        plt.title(name1+'_'+name2)
+        plt.plot(X_tr, y_tr, '.', label='train corrupt') #markersize
+        plt.plot(X_val, y_val, '*', label='validation')
+        plt.plot(X_te, y_te, '.', label='test')
+        # plt.plot(X, y, 'o',  label='ground truth')
+        plt.legend()
+        # plt.ylim(bottom=0)
+        plt.savefig(os.path.join(output_folder2, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
+        # plt.savefig(os.path.join(output_folder2_, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
+        plt.close('all') 
 
-    plt.figure()
-    plt.title(name1+'_'+name2)
-    plt.plot(X_tr, y_tr, '.', label='train corrupt') #markersize
-    plt.plot(X_val, y_val, '*', label='validation')
-    plt.plot(X_te, y_te, '.', label='test')
-    # plt.plot(X, y, 'o',  label='ground truth')
-    plt.legend()
-    # plt.ylim(bottom=0)
-    plt.savefig(os.path.join(output_folder2, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
-    # plt.savefig(os.path.join(output_folder2_, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
-    plt.close('all') 
+    elif num_dims == 2:
+        plt.figure()
+        ax1 = plt.axes(projection='3d')
+        ax1.plot_surface(x0,x1,Z,color='w') # cmap='rainbow''coolwarm'
+        ax1.scatter3D(X_tr[:,0], X_tr[:,1], y_tr, '.', s=10, alpha=0.6, label='train corrupt')
+        ax1.scatter3D(X_val[:,0], X_val[:,1], y_val, '*', s=10, alpha=0.6, label='validation')
+        ax1.scatter3D(X_te[:,0], X_te[:,1], y_te, '.', s=10, alpha=0.6, label='test')
+        plt.legend()
+        # 调整角度
+        ax1.view_init(elev=5,    # 仰角
+             azim=121    # 方位角
+            )
+        plt.savefig(os.path.join(output_folder2, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
+        # plt.show()
+        plt.close('all') 
+
 
     X_tr = torch.from_numpy(X_tr).float()
     y_tr = torch.from_numpy(y_tr).float()

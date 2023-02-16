@@ -60,17 +60,18 @@ else:
 def build_model(struc, func=None):
     # print('--')
     # print(args)
-    
-    # model = MetaLinear(num_dims, 1)
-    # num_hidden = 3
+    if '2d' in func:
+        num_hidden = 2
+    else:
+        num_hidden = 1
     # model = VNet(num_dims, num_hidden, 1)
     
     if struc == 'NN':
-        model = MetaNN(1, 1)
+        model = MetaNN(num_hidden, 1)
     elif struc == 'MLP':
         model = MetaMLP(30)
     elif struc == 'Lin' and ('linear0' in func):
-        model = MetaLinear(1, 1)
+        model = MetaLinear(num_hidden, 1)
 
     if torch.cuda.is_available() and use_cuda:
         model.cuda()
@@ -179,7 +180,7 @@ def meta_train(args, epoch, train_loader, val_loader, model, inner_loss, hypara,
         model.train()
         inputs, targets = inputs.to(device), targets.to(device)
 
-        pseudo_model = build_model(args.model)
+        pseudo_model = build_model(args.model, args.func)
         pseudo_model.load_state_dict(model.state_dict())
         outputs = pseudo_model(inputs)
         outputs = torch.squeeze(outputs)
@@ -269,7 +270,7 @@ def meta_exec(args, train_loader, val_loader, test_loader, \
     if not os.path.exists(output_folder2):
         os.makedirs(output_folder2)
 
-    model = build_model(args.model)
+    model = build_model(args.model, args.func)
     best_val = meta_test(model, val_loader)
     best_epoch = 0
     best_val_test = meta_test(model, test_loader)
@@ -285,7 +286,7 @@ def meta_exec(args, train_loader, val_loader, test_loader, \
     epoch_test_loss_list = [best_val_test]
 
     
-    plt.figure()
+    
     # for epoch in tqdm(range(args.epochs)):
     for epoch in range(epochs):
         task_mse, meta_mse = meta_train(args, epoch, \
@@ -312,16 +313,27 @@ def meta_exec(args, train_loader, val_loader, test_loader, \
             model.eval()
             with torch.no_grad():
                 y_te_hat = model(X_te.to(device))
-                
-            plt.title('%s with %.3f'%(name_performance, best_val))
-            plt.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
-            plt.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
-            plt.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
-            plt.plot(X_te.tolist(), y_te_hat.tolist(), '.', label='fitted')
-            plt.legend()
-            plt.savefig(os.path.join(output_folder2, name_train_result+'_' +name_performance+'.png')) # +'_'+ name1+'_'+name2
+            
+            # plt.figure()
+            # plt.title('%s with %.3f'%(name_performance, best_val))
+            if '2d' in args.func:
+                fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+                ax.plot(X_tr[:,0].numpy(), X_tr[:,1].numpy(), y_tr.numpy(), '.', ms=10, alpha=0.6, label='train')
+                ax.plot(X_val[:,0].numpy(), X_val[:,1].numpy(), y_val.numpy(), '*', ms=10, alpha=0.6, label='val')
+                ax.plot(X_te[:,0].numpy(), X_te[:,1].numpy(), y_te.numpy(), '.', ms=10, alpha=0.6, label='test')
+                ax.plot(X_te[:,0].tolist(), X_te[:,1].tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', ms=10, alpha=0.6, label='fitted')
+            else:
+                fig, ax = plt.subplots()
+                ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
+                ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
+                ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
+                ax.plot(X_te.tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', label='fitted')
+            ax.set_title('%s with %.3f'%(name_performance, best_val))
+            ax.legend()
+            fig.savefig(os.path.join(output_folder2, name_train_result+'_' +name_performance+'.png')) # +'_'+ name1+'_'+name2
+            del fig
             plt.clf()
-    plt.close('all') 
+            plt.close('all') 
 
 
     ##################################################
@@ -469,7 +481,6 @@ def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
     val_loss_list = [best_val]
     test_loss_list = [best_val_test]
     
-    plt.figure()
     # for epoch in tqdm(range(args.epochs)):
     for epoch in range(epochs):
         
@@ -509,15 +520,28 @@ def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
                 y_te_hat = model(X_te.to(device))
                 # y_tr_hat = model(X_tr.to(device))
             
-            plt.title('%s with best %.3f'%(name_performance, best_val))
-            plt.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
-            plt.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
-            plt.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
-            plt.plot(X_te.tolist(), y_te_hat.tolist(), '.', label='fitted')
-            plt.legend()
-            plt.savefig(os.path.join(output_folder3, name_performance+'.png')) #name_train_result+'_'+
+            # plt.figure()
+            
+            if '2d' in args.func:
+                # ax = fig.add_subplot(projection='3d')
+                fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+                # ax = plt.axes(projection='3d')
+                ax.plot(X_tr[:,0].numpy(), X_tr[:,1].numpy(), y_tr.numpy(), '.', ms=10, alpha=0.6, label='train')
+                ax.plot(X_val[:,0].numpy(), X_val[:,1].numpy(), y_val.numpy(), '*', ms=10, alpha=0.6, label='val')
+                ax.plot(X_te[:,0].numpy(), X_te[:,1].numpy(), y_te.numpy(), '.', ms=10, alpha=0.6, label='test')
+                ax.plot(X_te[:,0].tolist(), X_te[:,1].tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', ms=10, alpha=0.6, label='fitted')
+            else:
+                fig, ax = plt.subplots()
+                ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
+                ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
+                ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
+                ax.plot(X_te.tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', label='fitted')
+            ax.set_title('%s with best %.3f'%(name_performance, best_val))
+            ax.legend()
+            fig.savefig(os.path.join(output_folder3, name_performance+'.png')) #name_train_result+'_'+
+            del fig
             plt.clf()
-    plt.close('all') 
+            plt.close('all') 
 
     ##################################################
     ### plot
@@ -578,10 +602,9 @@ if __name__ == '__main__':
     print('\n=======================')
 
     ##############################################
-    sigma=1.2 ### 
+    sigma=0.5 ### 1.2
     epsilon=0.25 ###
     noise_seed = 47
-
 
     # methods = ['OLS', 'LAD', 'Huber(1.345)', 'Tukey(4.685)']
     taus = [100, 50, 10, 5, 1, 0.5, 0.1, 0.01, 0.001, 0.00001]
@@ -626,8 +649,6 @@ if __name__ == '__main__':
     print(best_val_testes)
 
     
-    
-    
     # pass
     # python train.py --robust contamination --func linear0 --noise laplace --data_seed 10 --epochs 40 --loss MSE --hypara 2. --mode none
      
@@ -644,6 +665,7 @@ if __name__ == '__main__':
     # python train.py --func tan01 --data_seed 666 --mode normal --epochs 2000 --noise_type Lognormal
 
     # python train.py --func log01 --data_seed 6 --mode meta3 --epochs 2000
+    # python train.py --func hd01 --data_seed 6 --mode none --noise_type Lognormal
 
     
     

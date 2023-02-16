@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 plt.rcParams.update({'figure.max_open_warning': 0})
 import pandas as pd
 
-import statsmodels.api as sm
+# import statsmodels.api as sm
 from sklearn.metrics import mean_squared_error as mse
 # from sklearn.metrics import mean_absolute_error as mae
 
@@ -137,8 +137,8 @@ def test_all_methods(noise_seed, sigma=3., epsilon=0.3):
             
             best_test =  min(pred_mse_epochs_list)
             best_test_epoch = pred_mse_epochs_list.index(best_test)
-            f.write('%s: best val %s and its test %.3f | the best test %.3f(%d)!'%\
-                (mode, best_performance, pred_mse, best_test, best_test_epoch)+ '\n')
+            f.write('%s: best val %s and its test %.3f | the best test %.3f(%d) | hy converge to %.3f!!'%\
+                (mode, best_performance, pred_mse, best_test, best_test_epoch, converge_hy)+ '\n')
             
             methods_pred_mse_list.append(pred_mse)
             methods_predmse_epochs_dict[mode] = pred_mse_epochs_list
@@ -357,18 +357,16 @@ if __name__ == '__main__':
     print('\n=======================')
 
     # # method3 = ['meta3', 'meta2']
-    # method3 = ['meta3']
-    # if args.adap_loss == 'Huber':
-    #     # taus = np.linspace(0.001,100, 10)
-    #     taus = [2.0102, 1.345, 0.7317, 0.307, 0.158] + [0.05, 0.01]
-    #     method1 = ['OLS', 'LAD', 'Tukey(4.685)'] + ['Huber(%.3f)'%tau for tau in taus]
-    # elif args.adap_loss == 'Tukey':
-    #     taus = [7.041, 4.685, 3.444, 1.722, 0.861]
-    #     method1 = ['OLS', 'LAD', 'Huber(1.345)'] + ['Tukey(%.3f)'%tau for tau in taus]
+    method3 = ['meta3']
+    # method1 = ['OLS', 'LAD', 'Huber(1.345)', 'Tukey(4.685)']
+    if args.adap_loss == 'Huber':
+        # taus = np.linspace(0.001,100, 10)
+        taus = [2.0102, 1.345, 0.7317, 0.307, 0.158] + [0.05, 0.01]
+        method1 = ['OLS', 'LAD', 'Tukey(4.685)'] + ['Huber(%.3f)'%tau for tau in taus]
+    elif args.adap_loss == 'Tukey':
+        taus = [7.041, 4.685, 3.444, 1.722, 0.861]
+        method1 = ['OLS', 'LAD', 'Huber(1.345)'] + ['Tukey(%.3f)'%tau for tau in taus]
 
-    ## just compared the OLS and LAD
-    method1 = ['OLS', 'LAD']
-    method3 = []
 
     
 
@@ -429,4 +427,4 @@ if __name__ == '__main__':
         
       
     end_time = time.time()
-    print("\nCost time : {:.4f}s".format(end_time - start_time))
+    print("\nCost time : {:.4f}s\n".format(end_time - start_time))
