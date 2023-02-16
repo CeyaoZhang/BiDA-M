@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 import matplotlib
-matplotlib.use('TkAgg') 
+# matplotlib.use('TkAgg') 
 from matplotlib import pyplot as plt
 
 import torch
@@ -70,11 +70,15 @@ def generate_data1(args, noise_seed, sigma, epsilon):
             X = np.random.uniform(1, 140, size=(num_samples, num_dims))
             y = np.log(X).ravel() # y(N,)
 
-        elif args.func == '2d01':
+        elif '2d' in args.func:
             num_dims = 2
             X = np.random.uniform(-1, 1, size=(num_samples, num_dims))
-            # y = np.sin(X[:,0]) + np.cos(X[:,1]) # y(N,)
-            y = np.cos(X[:,0] + X[:,1]) # y(N,)
+
+            if args.func == '2d01':
+                # y = np.sin(X[:,0]) + np.cos(X[:,1]) # y(N,)
+                y = np.cos(X[:,0] + X[:,1]) # y(N,)
+            elif args.func == '2d02':
+                y = np.sinh(X[:,0] + X[:,1])
 
             xx = np.arange(-1, 1, 0.1)
             yy = np.arange(-1, 1, 0.1)
@@ -243,17 +247,19 @@ def generate_data1(args, noise_seed, sigma, epsilon):
     elif num_dims == 2:
         plt.figure()
         ax1 = plt.axes(projection='3d')
+        ax1.set_title(name1+'_'+name2)
         ax1.plot_surface(x0,x1,Z,color='w') # cmap='rainbow''coolwarm'
         ax1.scatter3D(X_tr[:,0], X_tr[:,1], y_tr, '.', s=10, alpha=0.6, label='train corrupt')
         ax1.scatter3D(X_val[:,0], X_val[:,1], y_val, '*', s=10, alpha=0.6, label='validation')
         ax1.scatter3D(X_te[:,0], X_te[:,1], y_te, '.', s=10, alpha=0.6, label='test')
-        plt.legend()
+        ax1.legend()
         # 调整角度
-        ax1.view_init(elev=5,    # 仰角
-             azim=121    # 方位角
-            )
-        plt.savefig(os.path.join(output_folder2, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
         # plt.show()
+        # ax1.view_init(elev=5,    # 仰角
+        #      azim=121    # 方位角
+        #     )
+        plt.savefig(os.path.join(output_folder2, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
+        
         plt.close('all') 
 
 

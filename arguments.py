@@ -7,8 +7,7 @@ def get_args():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--mode', type=str, default='normal', 
-    choices=['none', 'normal', 'meta3', 'meta2'], 
+    parser.add_argument('--mode', type=str, default='normal', choices=['none', 'normal', 'meta3', 'meta2'], 
     help='none mode just generate data, noraml mode train the NN with noraml, meta2 use two updates and meta3 use three updates')
 
     parser.add_argument('--train_mode', type=str, default='regular', choices=['regular', 'sigmas', 'epsilons', 'sigmas-seeds', 'epsilons-seeds'])

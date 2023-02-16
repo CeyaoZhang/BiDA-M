@@ -144,7 +144,7 @@ def test_all_methods(noise_seed, sigma=3., epsilon=0.3):
             methods_predmse_epochs_dict[mode] = pred_mse_epochs_list
             hy_dict[mode] = converge_hy
             
-        print('==========meta Done=============')
+        print('\n==========meta Done=============\n')
     
     
     f.close

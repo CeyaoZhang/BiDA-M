@@ -579,7 +579,7 @@ def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
             (mode, loss_hypara, best_performance, best_val_test, best_test, best_test_epoch))
     except UnboundLocalError:
         print('UnboundLocalError')
-    print('\n=======================')
+    print('\n=======================\n')
     
     
 
