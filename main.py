@@ -326,25 +326,25 @@ def test_all_methods_ses_seeds(num_seeds, name_, list_, val_):
     fig.savefig(name_df1_+'.png')
 
 
-    #  visualize without the OLS and meta2
-    fig, ax = plt.subplots()
-    # fig, ax = plt.subplots(figsize=(15,12))
-    # fig.suptitle(name1)
-    # ax.set_title('ave %d seed pred MSE'%num_seeds)
-    for i in range(1, num_method-1): 
-        ax.errorbar(list_, ave_matrix_pred_mse[:,i], \
-            yerr=std_matrix_pred_mse[:,i], fmt='o-', label='%s'%methods[i], capsize=3, capthick=2)
-    ax.set_xlabel(r'%s distribution with value of $\%s$'%(args.noise_type, name_))
-    ax.set_ylabel('Prediction MSE')
-    ax.legend() # loc=2
-    if name_ == 'sigma':
-        name_df = '%s+%.3f%s_ave_%dseed_%dmethods_%s_%s'%(name_, val_, 'epsilons',num_seeds, num_method-2, name, timenow)
-    elif name_ == 'epsilon':
-        name_df = '%s+%.3f%s_ave_%dseed_%dmethods_%s_%s'%(name_, val_, 'sigmas',num_seeds, num_method-2, name, timenow)
-    name_df2 = os.path.join(output_folder, name_df)
-    name_df2_ = os.path.join(output_folder_, name_df)
-    fig.savefig(name_df2+'.png')
-    fig.savefig(name_df2_+'.png')
+    # #  visualize without the OLS and meta2
+    # fig, ax = plt.subplots()
+    # # fig, ax = plt.subplots(figsize=(15,12))
+    # # fig.suptitle(name1)
+    # # ax.set_title('ave %d seed pred MSE'%num_seeds)
+    # for i in range(1, num_method-1): 
+    #     ax.errorbar(list_, ave_matrix_pred_mse[:,i], \
+    #         yerr=std_matrix_pred_mse[:,i], fmt='o-', label='%s'%methods[i], capsize=3, capthick=2)
+    # ax.set_xlabel(r'%s distribution with value of $\%s$'%(args.noise_type, name_))
+    # ax.set_ylabel('Prediction MSE')
+    # ax.legend() # loc=2
+    # if name_ == 'sigma':
+    #     name_df = '%s+%.3f%s_ave_%dseed_%dmethods_%s_%s'%(name_, val_, 'epsilons',num_seeds, num_method-2, name, timenow)
+    # elif name_ == 'epsilon':
+    #     name_df = '%s+%.3f%s_ave_%dseed_%dmethods_%s_%s'%(name_, val_, 'sigmas',num_seeds, num_method-2, name, timenow)
+    # name_df2 = os.path.join(output_folder, name_df)
+    # name_df2_ = os.path.join(output_folder_, name_df)
+    # fig.savefig(name_df2+'.png')
+    # fig.savefig(name_df2_+'.png')
 
     print(noise_seeds)
 
@@ -356,7 +356,7 @@ if __name__ == '__main__':
     print(args)
     print('\n=======================')
 
-    # # method3 = ['meta3', 'meta2']
+    # method3 = ['meta3', 'meta2']
     method3 = ['meta3']
     # method1 = ['OLS', 'LAD', 'Huber(1.345)', 'Tukey(4.685)']
     if args.adap_loss == 'Huber':
@@ -390,7 +390,8 @@ if __name__ == '__main__':
         list_sigma = np.linspace(0.5, 4.5, num_sigma)
         sigma = 3.5
     elif args.noise_type == 'Lognormal':
-        list_sigma = np.linspace(0.2, 1.3, num_sigma) # 1.5 will be too variate
+        list_sigma = np.linspace(0.2, 1.3, num_sigma) # 1.5 will be too variate, default setting
+        # list_sigma = np.linspace(0.01, 0.5, num_sigma) # 1.5 will be too variate, just use to test whether sigma=1.3 is still to large
         # [0.2, 0.475, 0.75, 1.025, 1.3]
         sigma = 1.2
     elif args.noise_type == 'Pareto':

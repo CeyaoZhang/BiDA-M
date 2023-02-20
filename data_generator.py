@@ -5,7 +5,11 @@ import numpy as np
 import pandas as pd
 
 import matplotlib
-# matplotlib.use('TkAgg') 
+import platform
+if platform.system() == 'Linux':
+    pass
+elif platform.system() == 'Windows':
+    matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 
 import torch
@@ -84,7 +88,19 @@ def generate_data1(args, noise_seed, sigma, epsilon):
             elif args.func == '2d02':
                 y = np.sinh(X[:,0] + X[:,1])
                 Z = np.sinh(x0+x1)
-
+            elif args.func == '2d03':
+                y = np.log(np.abs(X[:,0] + X[:,1]) + 1)
+                Z = np.log(np.abs(x0+x1) + 1)
+        
+        elif '10d' in args.func:
+            num_dims = 10
+            X = np.random.uniform(-1, 1, size=(num_samples, num_dims))
+            if args.func == '10d02':
+                y = np.pi**(X[:,0]*X[:,1])*np.sqrt(2*np.abs(X[:,2]))-np.arcsin(X[:,3]/2)+np.log(np.abs(X[:,4]+X[:,2])+1)-(X[:,8]/1+np.abs(X[:,9]))*np.sqrt(np.abs(X[:,6])/(1+np.abs(X[:,7])))-X[:,1]*X[:,6]
+            elif args.func == '10d03':
+                y = np.exp(np.abs(X[:,0]-X[:,1]))+np.abs(X[:,2]*X[:,1])-(X[:,2]**2)*np.abs(X[:,3])+np.log(X[:,3]**2+X[:,4]**2+X[:,6]**2+X[:,7]**2 )+X[:,8]+1/(1+X[:,9]**2)
+            elif args.func == '10d05':
+                y = 1/(1+X[:,0]**2+X[:,1]**2+X[:,2]**2)+np.sqrt(np.exp(X[:,3]+X[:,4]))+np.abs(X[:,5]+X[:,6])+X[:,7]*X[:,8]*X[:,9]
         else:
             raise SystemExit('\nThe func is wrong')
         
@@ -93,9 +109,14 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         X_tr, X_te, X_val = X[:num_train], X[num_train:num_train+num_test], X[num_train+num_test:]
         y_tr, y_te, y_val = y[:num_train], y[num_train:num_train+num_test], y[num_train+num_test:]
 
+        if args.mode == 'none':
+            print(f'\n----------y range from {y.min()} to {y.max()}------')
+            print(f'----------y train range from {y_tr.min()} to {y_tr.max()}------\n')
+
     else:
         if args.func == 'real-rail':
-            df = pd.read_csv('real-data/rail-miles.csv', header=0) #, 
+            df = pd.read_csv('../real-data/rail-miles.csv', header=0) #, 
+            num_dims = 1
 
         # print(df.head())
         # print(df.tail())
@@ -107,29 +128,32 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         # print(type(X), X.shape)
         
         num_samples = len(y)
-        num_train, num_val = int(num_samples*0.7), int(num_samples*0.1)
-        num_test = num_samples - num_train - num_val
+        num_train, num_test = int(num_samples*0.9), int(num_samples*0.1)
         
-        
-        index_train = np.random.choice(num_samples, num_train, replace=False)
-        index_train.sort()
-        
-        index_ = list(set(list(range(num_samples))) - set(index_train))
-        index_val = np.random.choice(index_, num_val, replace=False) 
+        X_tr, X_te = X[:num_train], X[-num_test:]
+        y_tr, y_te = y[:num_train], y[-num_test:]
+
+        num_val = int(num_train*0.1)
+        index_val = list(np.random.choice(num_train, num_val, replace=False))
         index_val.sort()
-        index_test = list(set(index_) - set(index_val))
+        
+        index_train = list(set(list(range(num_train))) - set(index_val))
+        # index_val = np.random.choice(index_, num_val, replace=False) 
+        index_train.sort()
+        index_test = list(range(num_train, num_samples))
         index_test.sort()
         
-        # print('\n%d train, %d val, %d test'%(num_train, num_val, num_test))
+        num_train -= num_val
+        # print(f'\ntotal {num_samples} = {num_train} train, {num_val} val, {num_test} test\n')
         # print(index_train)
         # print(index_val)
         # print(index_test)
 
-        X_tr, X_te, X_val = X[index_train], X[index_test], X[index_val]
-        y_tr, y_te, y_val = y[index_train], y[index_test], y[index_val]
+        X_tr, X_val = X_tr[index_train], X_tr[index_val]
+        y_tr, y_val = y_tr[index_train], y_tr[index_val]
     
     
-    y_tr = copy.copy(y_tr) # 这一步关键，保证之后y_tr的改变不会改变y。in order to not change y, as y_r is the slice of y 
+    y_tr = copy.deepcopy(y_tr) # 这一步关键，保证之后y_tr的改变不会改变y。in order to not change y, as y_r is the slice of y 
 
     rng = np.random.RandomState(noise_seed) # seed for generate outliers, this can be change with input seed
     if args.robust == 'ht': # heavy-tails
@@ -187,6 +211,9 @@ def generate_data1(args, noise_seed, sigma, epsilon):
                 raise Exception('The noise type is wrong!')
             y_val[outlier_index] += e
 
+    if args.mode == 'none':
+        print(f'\n----------y train range from {y_tr.min()} to {y_tr.max()}------\n')
+
     output_folder = os.path.dirname(os.path.dirname(os.getcwd()))
     output_folder = os.path.join(output_folder, 'adaLoss_results')
     output_folder_ = os.path.dirname(os.getcwd())
@@ -200,7 +227,7 @@ def generate_data1(args, noise_seed, sigma, epsilon):
     output_folder = os.path.join(output_folder, name)
     output_folder_ = os.path.join(output_folder_, name)
 
-    name = '%dt+v'%args.train_add_val+'_'+'%dnoisy-val'%args.noisy_val+'_'+"%sbmodel"%(args.bmodel)+'_'+args.adap_loss+'+'+args.outer_loss
+    name = '%dt+v'%args.train_add_val+'_'+'%dnoisy-val'%args.noisy_val+'_'+"(%s)bmodel"%(args.bmodel)+'_'+args.adap_loss+'+'+args.outer_loss
     output_folder = os.path.join(output_folder, name)
     output_folder_ = os.path.join(output_folder_, name)
     if not os.path.exists(output_folder_):
@@ -234,13 +261,13 @@ def generate_data1(args, noise_seed, sigma, epsilon):
     if num_dims == 1:
         plt.figure()
         plt.title(name1+'_'+name2)
-        plt.plot(X_tr, y_tr, '.', label='train corrupt') #markersize
-        plt.plot(X_val, y_val, '*', label='validation')
-        plt.plot(X_te, y_te, '.', label='test')
-        # plt.plot(X, y, 'o',  label='ground truth')
+        plt.plot(X_tr, y_tr, '.', ms=5, label='train corrupt') #markersize
+        plt.plot(X_val, y_val, '*', ms=5,label='validation')
+        plt.plot(X_te, y_te, '.', ms=5, label='test')
+        plt.plot(X, y, 'o', ms=6, alpha=0.3, label='ground truth')
         plt.legend()
         # plt.ylim(bottom=0)
-        plt.savefig(os.path.join(output_folder2, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
+        plt.savefig(os.path.join(output_folder2, 'data-%s-%s.png'%(args.func, name+'_'+name1+'_'+name2)))
         # plt.savefig(os.path.join(output_folder2_, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
         plt.close('all') 
 
@@ -258,7 +285,7 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         # ax1.view_init(elev=5,    # 仰角
         #      azim=121    # 方位角
         #     )
-        plt.savefig(os.path.join(output_folder2, 'data-%s.png'%(name+'_'+name1+'_'+name2)))
+        plt.savefig(os.path.join(output_folder2, 'data-%s-%s.png'%(args.func, name+'_'+name1+'_'+name2)))
         
         plt.close('all') 
 

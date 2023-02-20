@@ -21,7 +21,7 @@ from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from sklearn.model_selection import train_test_split
 
-from models import MetaLinear, MetaNN, MetaMLP
+from models import MetaLinear, MetaNN, MetaMLP, MetaNet
 from data_generator import generate_data1
 
 from multiprocessing import cpu_count
@@ -62,6 +62,8 @@ def build_model(struc, func=None):
     # print(args)
     if '2d' in func:
         num_hidden = 2
+    elif '10d' in func:
+        num_hidden = 10
     else:
         num_hidden = 1
     # model = VNet(num_dims, num_hidden, 1)
@@ -69,9 +71,11 @@ def build_model(struc, func=None):
     if struc == 'NN':
         model = MetaNN(num_hidden, 1)
     elif struc == 'MLP':
-        model = MetaMLP(30)
+        model = MetaMLP(num_hidden, 1)
     elif struc == 'Lin' and ('linear0' in func):
         model = MetaLinear(num_hidden, 1)
+    else:
+        model = MetaNet(num_hidden, struc)
 
     if torch.cuda.is_available() and use_cuda:
         model.cuda()
@@ -314,26 +318,29 @@ def meta_exec(args, train_loader, val_loader, test_loader, \
             with torch.no_grad():
                 y_te_hat = model(X_te.to(device))
             
-            # plt.figure()
-            # plt.title('%s with %.3f'%(name_performance, best_val))
-            if '2d' in args.func:
-                fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-                ax.plot(X_tr[:,0].numpy(), X_tr[:,1].numpy(), y_tr.numpy(), '.', ms=10, alpha=0.6, label='train')
-                ax.plot(X_val[:,0].numpy(), X_val[:,1].numpy(), y_val.numpy(), '*', ms=10, alpha=0.6, label='val')
-                ax.plot(X_te[:,0].numpy(), X_te[:,1].numpy(), y_te.numpy(), '.', ms=10, alpha=0.6, label='test')
-                ax.plot(X_te[:,0].tolist(), X_te[:,1].tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', ms=10, alpha=0.6, label='fitted')
+            if '10d' in args.func:
+                pass
             else:
-                fig, ax = plt.subplots()
-                ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
-                ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
-                ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
-                ax.plot(X_te.tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', label='fitted')
-            ax.set_title('%s with %.3f'%(name_performance, best_val))
-            ax.legend()
-            fig.savefig(os.path.join(output_folder2, name_train_result+'_' +name_performance+'.png')) # +'_'+ name1+'_'+name2
-            del fig
-            plt.clf()
-            plt.close('all') 
+                # plt.figure()
+                # plt.title('%s with %.3f'%(name_performance, best_val))
+                if '2d' in args.func:
+                    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+                    ax.plot(X_tr[:,0].numpy(), X_tr[:,1].numpy(), y_tr.numpy(), '.', ms=10, alpha=0.6, label='train')
+                    ax.plot(X_val[:,0].numpy(), X_val[:,1].numpy(), y_val.numpy(), '*', ms=10, alpha=0.6, label='val')
+                    ax.plot(X_te[:,0].numpy(), X_te[:,1].numpy(), y_te.numpy(), '.', ms=10, alpha=0.6, label='test')
+                    ax.plot(X_te[:,0].tolist(), X_te[:,1].tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', ms=10, alpha=0.6, label='fitted')
+                else:
+                    fig, ax = plt.subplots()
+                    ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
+                    ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
+                    ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
+                    ax.plot(X_te.tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', label='fitted')
+                ax.set_title('%s with %.3f'%(name_performance, best_val))
+                ax.legend()
+                fig.savefig(os.path.join(output_folder2, name_train_result+'_' +name_performance+'.png')) # +'_'+ name1+'_'+name2
+                del fig
+                plt.clf()
+                plt.close('all') 
 
 
     ##################################################
@@ -341,24 +348,26 @@ def meta_exec(args, train_loader, val_loader, test_loader, \
     
     converge_hy = np.mean(epoch_hy_list[-100:])
     # fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(17,13))
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,10)) # 
+    # fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(25,10)) # 
+    fig, ax1 = plt.subplots(1, 1)
     fig.suptitle('Train %s %s with %s(%s) converge to %.3f'%\
         (args.noise_type, args.robust, inner_loss, args.hypara, converge_hy)) # , fontsize=16
 
-    ax1.set_title('Training Loss')
-    ax1.plot(epoch_task_loss_list, '-', label='train MSE')
-    # ax1.legend()
-    ax1.set_xlabel('Epochs')
+    # ax1.set_title('Training Loss')
+    ax1.plot(epoch_task_loss_list, '-', label='train')
     # ax4.set_ylim(-1,top=9)
     # ax2.set_ylim(bottom=0)
     # ax2.set_xlim(left=0)
     # ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
-    ax2.set_title('Validataion Loss')
-    ax2.plot(epoch_val_loss_list, '-', label='val MSE')
-    ax2.set_xlabel('Epochs')
-    ax3.set_title('Testing Loss')
-    ax3.plot(epoch_test_loss_list, '-', label='test MSE')
-    ax3.set_xlabel('Epochs')
+    # ax2.set_title('Validataion Loss')
+    ax1.plot(epoch_val_loss_list, '-', label='val')
+    # ax2.set_xlabel('Epochs')
+    # ax3.set_title('Testing Loss')
+    ax1.plot(epoch_test_loss_list, '-', label='test')
+    # ax3.set_xlabel('Epochs')
+    ax1.set_xlabel('Epochs')
+    ax1.set_ylabel('MSE')
+    ax1.legend()
 
     fig.savefig(os.path.join(output_folder2, 'loss_'+name_train_result+'.png')) # +'_' + name1+'_'+name2
     del fig
@@ -522,26 +531,29 @@ def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
             
             # plt.figure()
             
-            if '2d' in args.func:
-                # ax = fig.add_subplot(projection='3d')
-                fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-                # ax = plt.axes(projection='3d')
-                ax.plot(X_tr[:,0].numpy(), X_tr[:,1].numpy(), y_tr.numpy(), '.', ms=10, alpha=0.6, label='train')
-                ax.plot(X_val[:,0].numpy(), X_val[:,1].numpy(), y_val.numpy(), '*', ms=10, alpha=0.6, label='val')
-                ax.plot(X_te[:,0].numpy(), X_te[:,1].numpy(), y_te.numpy(), '.', ms=10, alpha=0.6, label='test')
-                ax.plot(X_te[:,0].tolist(), X_te[:,1].tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', ms=10, alpha=0.6, label='fitted')
+            if '10d' in args.func:
+                pass
             else:
-                fig, ax = plt.subplots()
-                ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
-                ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
-                ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
-                ax.plot(X_te.tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', label='fitted')
-            ax.set_title('%s with best %.3f'%(name_performance, best_val))
-            ax.legend()
-            fig.savefig(os.path.join(output_folder3, name_performance+'.png')) #name_train_result+'_'+
-            del fig
-            plt.clf()
-            plt.close('all') 
+                if '2d' in args.func:
+                    # ax = fig.add_subplot(projection='3d')
+                    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+                    # ax = plt.axes(projection='3d')
+                    ax.plot(X_tr[:,0].numpy(), X_tr[:,1].numpy(), y_tr.numpy(), '.', ms=10, alpha=0.6, label='train')
+                    ax.plot(X_val[:,0].numpy(), X_val[:,1].numpy(), y_val.numpy(), '*', ms=10, alpha=0.6, label='val')
+                    ax.plot(X_te[:,0].numpy(), X_te[:,1].numpy(), y_te.numpy(), '.', ms=10, alpha=0.6, label='test')
+                    ax.plot(X_te[:,0].tolist(), X_te[:,1].tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', ms=5, alpha=0.6, label='fitted')
+                else:
+                    fig, ax = plt.subplots()
+                    ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
+                    ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
+                    ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
+                    ax.plot(X_te.tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', label='fitted')
+                ax.set_title('%s with best %.3f'%(name_performance, best_val))
+                ax.legend()
+                fig.savefig(os.path.join(output_folder3, name_performance+'.png')) #name_train_result+'_'+
+                del fig
+                plt.clf()
+                plt.close('all') 
 
     ##################################################
     ### plot
@@ -604,7 +616,8 @@ if __name__ == '__main__':
     ##############################################
     sigma=0.5 ### 1.2
     epsilon=0.25 ###
-    noise_seed = 47
+    noise_seed = 50
+    print(f'\n sigma: {sigma} | epsilon: {epsilon} | noise_seed: {noise_seed} \n')
 
     # methods = ['OLS', 'LAD', 'Huber(1.345)', 'Tukey(4.685)']
     taus = [100, 50, 10, 5, 1, 0.5, 0.1, 0.01, 0.001, 0.00001]

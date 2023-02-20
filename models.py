@@ -289,30 +289,13 @@ class VNet(MetaModule):
         # return F.sigmoid(out)
         return torch.sigmoid(out)
 
-
-class MetaNN(MetaModule):
-    def __init__(self, input, output):
-        super().__init__()
-        self.layer1 = nn.Sequential(MetaLinear(input, 50), nn.ReLU(True))
-        self.layer2 = nn.Sequential(MetaLinear(50, 80), nn.ReLU(True))
-        self.layer3 = nn.Sequential(MetaLinear(80, 10), nn.ReLU(True))
-        self.layer4 = MetaLinear(10, output)
-    
-    def forward(self, x):
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        out = self.layer4(x)
-        return out
-
-
 class MetaMLP(nn.Module):
-    def __init__(self, hidden):
+    def __init__(self, input, hidden=30, output=1):
         super(MetaMLP, self).__init__()
         self.layer = nn.Sequential(
-            nn.Linear(1, hidden),
+            MetaLinear(input, hidden),
             nn.ReLU(inplace=True),
-            nn.Linear(hidden, 1),
+            MetaLinear(hidden, output),
         )
         
     def forward(self, x):
@@ -343,7 +326,42 @@ class MetaMLP(nn.Module):
             for name, p in self.named_params(module, memo, submodule_prefix):
                 yield name, p
 
+     
+class MetaNN(MetaModule):
+    def __init__(self, input, output=1):
+        super().__init__()
+        self.layer1 = nn.Sequential(MetaLinear(input, 50), nn.ReLU(True))
+        self.layer2 = nn.Sequential(MetaLinear(50, 80), nn.ReLU(True))
+        self.layer3 = nn.Sequential(MetaLinear(80, 10), nn.ReLU(True))
+        self.layer4 = MetaLinear(10, output)
     
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        out = self.layer4(x)
+        return out
+
+class MetaNet(MetaModule):
+    def __init__(self, input_dim, hiddens='50-80-10', out_dim=1):
+        super().__init__()
+        if type(hiddens) == str:
+            hiddens = [int(h) for h in hiddens.split('-')]
+        assert type(hiddens[0]) == int, 'hidden size is wrong!'
+
+        self.layers = nn.ModuleList()
+        curr_input_dim = input_dim
+        for h in range(hiddens):
+            fc = nn.Sequential(MetaLinear(curr_input_dim, h), nn.ReLU(True))
+            self.layers.append(fc)
+            curr_input_dim = h
+        self.layers.append(MetaLinear(hiddens[-1], out_dim))
+
+    
+    def forward(self, x):
+        for layer in range(self.layers):
+            x = layer(x)
+        return x
 
 
 

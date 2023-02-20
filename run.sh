@@ -7,12 +7,76 @@
 
 #----- func 2d01 40min 25 min one seed
 # python main.py --func 2d01 --data_seed 555 --train_mode regular --epochs 600 --num_seeds 3 --noise_type Lognormal
+
 # nohup python -u main.py --func 2d01 --data_seed 555 --train_mode sigmas-seeds --epochs 600 --num_seeds 3 --noise_type Lognormal
 # nohup python -u main.py --func 2d01 --data_seed 555 --train_mode epsilons-seeds --epochs 600 --num_seeds 3 --noise_type Lognormal > ../results/2d01_epislons_Lognormal.log 2>&1 &
-# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 2d01 --data_seed 55 --train_mode sigmas-seeds --epochs 600 --num_seeds 3 --noise_type Lognormal > ../results/2d01_sigmas_Lognormal.log 2>&1 & 
+
+# nohup python -u main.py --func 2d01 --data_seed 555 --train_mode sigmas-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 > ../results/2d01_sigmas_Lognormal_tukey.log 2>&1 &
+# nohup python -u main.py --func 2d01 --data_seed 555 --train_mode epsilons-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 > ../results/2d01_epislons_Lognormal_tukey.log 2>&1 &  
 
 # nohup python -u main.py --func 2d01 --data_seed 555 --train_mode epsilons-seeds --epochs 600 --num_seeds 3 --noise_type Laplace > ../results/2d01_epislons_Laplace.log 2>&1 &
 # CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 2d01 --data_seed 555 --train_mode sigmas-seeds --epochs 600 --num_seeds 3 --noise_type Laplace > ../results/2d01_sigmas_Laplace.log 2>&1 &  
 
-#----- func 2d02
-python train.py --func 2d02 --data_seed 555 --mode none --noise_type Lognormal
+#----- func 2d02 | 25-30min/seed [50, 98, 54, 6, 34]
+# python train.py --func 2d02 --data_seed 555 --mode none --noise_type Lognormal
+
+# nohup python -u main.py --func 2d02 --data_seed 555 --train_mode sigmas-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal > ../results/2d02_sigmas_Lognormal_5sd.log 2>&1 & 
+# nohup python -u main.py --func 2d02 --data_seed 555 --train_mode epsilons-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal > ../results/2d02_epislons_Lognormal_5sd.log 2>&1 &
+
+# nohup python -u main.py --func 2d02 --data_seed 555 --train_mode sigmas-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 > ../results/2d02_sigmas_Lognormal_5sd_tukey.log 2>&1 & 
+# nohup python -u main.py --func 2d02 --data_seed 555 --train_mode epsilons-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 > ../results/2d02_epislons_Lognormal_5sd_tukey.log 2>&1
+
+#----- func 2d03 | 25-30min/seed [50, 98, 54, 6, 34]
+
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 2d03 --data_seed 555 --train_mode sigmas-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal > ../results/2d03_sigmas_Lognormal_5sd.log 2>&1 & 
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 2d03 --data_seed 555 --train_mode epsilons-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal > ../results/2d03_epislons_Lognormal_5sd.log 2>&1 &
+
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 2d03 --data_seed 555 --train_mode sigmas-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 > ../results/2d03_sigmas_Lognormal_5sd_tukey.log 2>&1 & 
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 2d03 --data_seed 555 --train_mode epsilons-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 > ../results/2d03_epislons_Lognormal_5sd_tukey.log 2>&1
+
+#----- func 10d02 | 25-30min/seed [50, 98, 54, 6, 34]
+
+# python train.py --func 10d02 --data_seed 555 --mode none --noise_type Lognormal
+
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d02 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --train_mode sigmas-seeds > ../results/10d02_sigmas_Lognormal_5sd_huber.log 2>&1 & 
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d02 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --train_mode epsilons-seeds > ../results/10d02_epislons_Lognormal_5sd_huber.log 2>&1 &
+
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d02 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 --train_mode sigmas-seeds > ../results/10d02_sigmas_Lognormal_5sd_tukey.log 2>&1 & 
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d02 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 --train_mode epsilons-seeds > ../results/10d02_epislons_Lognormal_5sd_tukey.log 2>&1
+
+CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d02 --data_seed 555 --epochs 800 --num_seeds 5 --noise_type Lognormal --model 80-100-30 --bmodel 80-100-30 --train_mode sigmas-seeds > ../results/10d02_sigmas_Lognormal_5sd_huber.log 2>&1 & 
+CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d02 --data_seed 555 --epochs 800 --num_seeds 5 --noise_type Lognormal --model 80-100-30 --bmodel 80-100-30 --train_mode epsilons-seeds > ../results/10d02_epislons_Lognormal_5sd_huber.log 2>&1 &
+
+CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d02 --data_seed 555 --epochs 800 --num_seeds 5 --noise_type Lognormal --model 80-100-30 --bmodel 80-100-30 --adap_loss Tukey --hypara 4.685 --train_mode sigmas-seeds > ../results/10d02_sigmas_Lognormal_5sd_tukey.log 2>&1 & 
+CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d02 --data_seed 555 --epochs 800 --num_seeds 5 --noise_type Lognormal --model 80-100-30 --bmodel 80-100-30 --adap_loss Tukey --hypara 4.685 --train_mode epsilons-seeds > ../results/10d02_epislons_Lognormal_5sd_tukey.log 2>&1
+
+
+#----- func 10d03 
+
+# python train.py --func 10d03 --data_seed 555 --mode none --noise_type Lognormal
+
+# nohup python -u main.py --func 10d03 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --train_mode sigmas-seeds > ../results/10d03_sigmas_Lognormal_5sd_huber.log 2>&1 & 
+# nohup python -u main.py --func 10d03 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --train_mode epsilons-seeds > ../results/10d03_epislons_Lognormal_5sd_huber.log 2>&1 &
+
+# nohup python -u main.py --func 10d03 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 --train_mode sigmas-seeds > ../results/10d03_sigmas_Lognormal_5sd_tukey.log 2>&1 & 
+# nohup python -u main.py --func 10d03 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 --train_mode epsilons-seeds > ../results/10d03_epislons_Lognormal_5sd_tukey.log 2>&1
+
+#----- func 10d05 
+
+# python train.py --func 10d05 --data_seed 555 --mode none --noise_type Lognormal
+
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d05 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --train_mode sigmas-seeds > ../results/10d05_sigmas_Lognormal_5sd_huber.log 2>&1 & 
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d05 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --train_mode epsilons-seeds > ../results/10d05_epislons_Lognormal_5sd_huber.log 2>&1 &
+
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d05 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 --train_mode sigmas-seeds > ../results/10d05_sigmas_Lognormal_5sd_tukey.log 2>&1 & 
+# CUDA_VISIBLE_DEVICES=1 nohup python -u main.py --func 10d05 --data_seed 555 --epochs 500 --num_seeds 5 --noise_type Lognormal --adap_loss Tukey --hypara 4.685 --train_mode epsilons-seeds > ../results/10d05_epislons_Lognormal_5sd_tukey.log 2>&1
+
+
+#----- real-rail
+# python train.py --func real-rail --data_seed 555 --mode none --noise_type Lognormal
+
+# nohup python -u main.py --func real-rail --data_seed 555 --train_mode sigmas-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal > ../results/real-rail_sigmas_Lognormal_5sd.log 2>&1 & 
+# nohup python -u main.py --func real-rail --data_seed 555 --train_mode epsilons-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal > ../results/real-rail_epislons_Lognormal_5sd.log 2>&1 &
+
+# nohup python -u main.py --func real-rail --data_seed 55 --train_mode sigmas-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal > ../results/real-rail_sigmas_Lognormal_5sd.log 2>&1 & 
+# nohup python -u main.py --func real-rail --data_seed 55 --train_mode epsilons-seeds --epochs 600 --num_seeds 5 --noise_type Lognormal > ../results/real-rail_epislons_Lognormal_5sd.log 2>&1 &

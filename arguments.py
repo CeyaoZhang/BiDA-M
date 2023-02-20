@@ -24,9 +24,12 @@ def get_args():
     parser.add_argument('--noisy_val', type=int, default=0, choices=[0, 1], help='0 means clean val data, 1 means that val data also contain heavy noise')
     parser.add_argument('--outer_loss', type=str, default='MSE', help='the loss in the outer/upper loop, useful only when noisy_val=1')
 
-    parser.add_argument('--model', type=str, default='NN', choices=['NN','Lin','MLP'], help='the estimator model')
+
     parser.add_argument('--bflag', type=int, default=1, choices=[0,1], help='bflag=0 use sm package and linear model, bflag=1 use bmodel which are all NN')
-    parser.add_argument('--bmodel', type=str, default='NN', choices=['NN','Lin','MLP'], help='model choice baseline methods')
+    # parser.add_argument('--bmodel', type=str, default='NN', choices=['NN','Lin','MLP'], help='model choice baseline methods')
+    # parser.add_argument('--model', type=str, default='NN', choices=['NN','Lin','MLP'], help='the estimator model')
+    parser.add_argument('--bmodel', type=str, default='50-80-10', help='model choice baseline methods')
+    parser.add_argument('--model', type=str, default='50-80-10', help='the estimator model')
     
     parser.add_argument('--epochs', type=int,  default=500, help='number of total epochs to run')
     parser.add_argument('--batch_size', type=int, default=60, help='mini-batch size')
