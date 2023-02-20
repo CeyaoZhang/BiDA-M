@@ -351,7 +351,7 @@ class MetaNet(MetaModule):
 
         self.layers = nn.ModuleList()
         curr_input_dim = input_dim
-        for h in range(hiddens):
+        for h in hiddens:
             fc = nn.Sequential(MetaLinear(curr_input_dim, h), nn.ReLU(True))
             self.layers.append(fc)
             curr_input_dim = h
@@ -359,7 +359,7 @@ class MetaNet(MetaModule):
 
     
     def forward(self, x):
-        for layer in range(self.layers):
+        for layer in self.layers:
             x = layer(x)
         return x
 
