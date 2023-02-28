@@ -28,7 +28,7 @@ from data_generator import generate_data1
 
 def test_all_methods(noise_seed, sigma=3., epsilon=0.3):
 
-    (X_tr, y_tr), (X_val,y_val), (X_te, y_te),  (name, name1, name2), \
+    (X,y), (X_tr, y_tr), (X_val,y_val), (X_te, y_te),  (name, name1, name2), \
     (output_folder, output_folder1, output_folder2), (output_folder_, output_folder1_, output_folder2_), \
     (train_loader, val_loader, test_loader) = generate_data1(args, noise_seed, sigma, epsilon)
     
@@ -118,7 +118,7 @@ def test_all_methods(noise_seed, sigma=3., epsilon=0.3):
     else:
         for method in method2:
             pred_mse, best_performance, pred_mse_epochs_list = normal_exec(args, method, train_loader, val_loader, test_loader, \
-                X_tr, y_tr, X_val, y_val, X_te, y_te, output_folder2, name1, name2, mode='normal')
+                X, y, X_tr, y_tr, X_val, y_val, X_te, y_te, output_folder2, name1, name2, mode='normal')
             
             best_test =  min(pred_mse_epochs_list)
             best_test_epoch = pred_mse_epochs_list.index(best_test)
@@ -248,7 +248,7 @@ def test_all_methods_ses(name_, list_, val_, noise_seed, flag=True):
         name_plt = os.path.join(output_folder1, 'predmse_%.3fsigmas_%dmethods_%s_%s_%s'%(val_, num_method-2, name, name1, timenow))
         # name_plt_ = os.path.join(output_folder1_, 'predmse_%.3fsigmas_%dmethods_%s_%s_%s'%(val_, num_method-1, name, name1, timenow))
     plt.figure()
-    for method in methods[1:-1]:
+    for method in methods[1:]:
         plt.plot(list_, df[method].values, 'o-', label='%s'%method)
     plt.xlabel((r'%s distribution with value of $\%s$'%(args.noise_type, name_)))
     plt.ylabel('Prediction MSE')
@@ -393,7 +393,8 @@ if __name__ == '__main__':
         list_sigma = np.linspace(0.2, 1.3, num_sigma) # 1.5 will be too variate, default setting
         # list_sigma = np.linspace(0.01, 0.5, num_sigma) # 1.5 will be too variate, just use to test whether sigma=1.3 is still to large
         # [0.2, 0.475, 0.75, 1.025, 1.3]
-        sigma = 1.2
+        # sigma = 1.2
+        sigma = 0.75
     elif args.noise_type == 'Pareto':
         list_sigma = np.linspace(1.5, 3., num_sigma)
     

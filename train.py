@@ -257,7 +257,7 @@ def meta_test(model, data_loader):
     return test_loss
 
 def meta_exec(args, train_loader, val_loader, test_loader, \
-    X_tr, y_tr, X_val, y_val, X_te, y_te, \
+    X, y, X_tr, y_tr, X_val, y_val, X_te, y_te, \
         output_folder2, name1, name2, mode):
     
     epochs = args.epochs
@@ -316,7 +316,8 @@ def meta_exec(args, train_loader, val_loader, test_loader, \
             
             model.eval()
             with torch.no_grad():
-                y_te_hat = model(X_te.to(device))
+                # y_te_hat = model(X_te.to(device))
+                y_hat = model(X.to(device))
             
             if '10d' in args.func:
                 pass
@@ -328,13 +329,13 @@ def meta_exec(args, train_loader, val_loader, test_loader, \
                     ax.plot(X_tr[:,0].numpy(), X_tr[:,1].numpy(), y_tr.numpy(), '.', ms=10, alpha=0.6, label='train')
                     ax.plot(X_val[:,0].numpy(), X_val[:,1].numpy(), y_val.numpy(), '*', ms=10, alpha=0.6, label='val')
                     ax.plot(X_te[:,0].numpy(), X_te[:,1].numpy(), y_te.numpy(), '.', ms=10, alpha=0.6, label='test')
-                    ax.plot(X_te[:,0].tolist(), X_te[:,1].tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', ms=10, alpha=0.6, label='fitted')
+                    ax.plot(X[:,0].tolist(), X[:,1].tolist(), y_hat[:,0].detach().cpu().tolist(), 'ow', ms=10, alpha=0.6, label='fitted')
                 else:
                     fig, ax = plt.subplots()
                     ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
                     ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
                     ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
-                    ax.plot(X_te.tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', label='fitted')
+                    ax.plot(X.tolist(), y_hat[:,0].detach().cpu().tolist(), 'ow', ms=6, alpha=0.5, label='fitted')
                 ax.set_title('%s with %.3f'%(name_performance, best_val))
                 ax.legend()
                 fig.savefig(os.path.join(output_folder2, name_train_result+'_' +name_performance+'.png')) # +'_'+ name1+'_'+name2
@@ -454,7 +455,7 @@ def evaluate_loop(dataloader, model, loss_fn):
 
 
 def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
-    X_tr, y_tr, X_val, y_val, X_te, y_te, \
+    X, y, X_tr, y_tr, X_val, y_val, X_te, y_te, \
         output_folder2, name1, name2, mode):
     
     epochs = args.epochs
@@ -526,8 +527,9 @@ def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
             
             model.eval()
             with torch.no_grad():
-                y_te_hat = model(X_te.to(device))
+                # y_te_hat = model(X_te.to(device))
                 # y_tr_hat = model(X_tr.to(device))
+                y_hat = model(X.to(device))
             
             # plt.figure()
             
@@ -541,13 +543,13 @@ def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
                     ax.plot(X_tr[:,0].numpy(), X_tr[:,1].numpy(), y_tr.numpy(), '.', ms=10, alpha=0.6, label='train')
                     ax.plot(X_val[:,0].numpy(), X_val[:,1].numpy(), y_val.numpy(), '*', ms=10, alpha=0.6, label='val')
                     ax.plot(X_te[:,0].numpy(), X_te[:,1].numpy(), y_te.numpy(), '.', ms=10, alpha=0.6, label='test')
-                    ax.plot(X_te[:,0].tolist(), X_te[:,1].tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', ms=5, alpha=0.6, label='fitted')
+                    ax.plot(X[:,0].tolist(), X[:,1].tolist(), y_hat[:,0].detach().cpu().tolist(), 'o', ms=5, alpha=0.6, label='fitted')
                 else:
                     fig, ax = plt.subplots()
                     ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
                     ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
                     ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
-                    ax.plot(X_te.tolist(), y_te_hat[:,0].detach().cpu().tolist(), '.', label='fitted')
+                    ax.plot(X.tolist(), y_hat[:,0].detach().cpu().tolist(), 'ow', ms=6, alpha=0.5, label='fitted')
                 ax.set_title('%s with best %.3f'%(name_performance, best_val))
                 ax.legend()
                 fig.savefig(os.path.join(output_folder3, name_performance+'.png')) #name_train_result+'_'+
@@ -625,7 +627,7 @@ if __name__ == '__main__':
     # methods = ['OLS', 'LAD']
     best_val_testes = {}
 
-    (X_tr, y_tr), (X_val,y_val), (X_te, y_te), (name, name1, name2),\
+    (X,y), (X_tr, y_tr), (X_val,y_val), (X_te, y_te), (name, name1, name2),\
          (output_folder, output_folder1, output_folder2), (output_folder_, output_folder1_, output_folder2_),\
               (train_loader, val_loader, test_loader) = generate_data1(args, noise_seed, sigma, epsilon)
     # print('\n%d train, %d val, %d test'%(num_train, num_val, num_test))

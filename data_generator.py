@@ -109,14 +109,12 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         X_tr, X_te, X_val = X[:num_train], X[num_train:num_train+num_test], X[num_train+num_test:]
         y_tr, y_te, y_val = y[:num_train], y[num_train:num_train+num_test], y[num_train+num_test:]
 
-        if args.mode == 'none':
-            print(f'\n----------y range from {y.min()} to {y.max()}------')
-            print(f'----------y train range from {y_tr.min()} to {y_tr.max()}------\n')
-
     else:
-        if args.func == 'real-rail':
+        num_dims = 1
+
+        if 'real-rail' in args.func:
             df = pd.read_csv('../real-data/rail-miles.csv', header=0) #, 
-            num_dims = 1
+            
 
         # print(df.head())
         # print(df.tail())
@@ -127,13 +125,20 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         X = X.reshape(-1,1)
         # print(type(X), X.shape)
         
+        # normalization
+        y_mean, y_std = np.mean(y), np.std(y)
+        y = (y-y_mean)/y_std
+
+        # split tr, val, te
         num_samples = len(y)
+
+
         num_train, num_test = int(num_samples*0.9), int(num_samples*0.1)
         
         X_tr, X_te = X[:num_train], X[-num_test:]
         y_tr, y_te = y[:num_train], y[-num_test:]
 
-        num_val = int(num_train*0.1)
+        num_val = int(num_train*0.2)
         index_val = list(np.random.choice(num_train, num_val, replace=False))
         index_val.sort()
         
@@ -144,16 +149,19 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         index_test.sort()
         
         num_train -= num_val
-        # print(f'\ntotal {num_samples} = {num_train} train, {num_val} val, {num_test} test\n')
-        # print(index_train)
-        # print(index_val)
-        # print(index_test)
-
         X_tr, X_val = X_tr[index_train], X_tr[index_val]
         y_tr, y_val = y_tr[index_train], y_tr[index_val]
-    
+
+
     
     y_tr = copy.deepcopy(y_tr) # 这一步关键，保证之后y_tr的改变不会改变y。in order to not change y, as y_r is the slice of y 
+
+    if args.mode == 'none':
+        print(f'\ntotal {num_samples} = {num_train} train, {num_val} val, {num_test} test\n')
+        print(f'\n----------y range from {y.min()} to {y.max()}------')
+        print(f'----------y train range from {y_tr.min()} to {y_tr.max()}------\n')
+
+    
 
     rng = np.random.RandomState(noise_seed) # seed for generate outliers, this can be change with input seed
     if args.robust == 'ht': # heavy-tails
@@ -264,7 +272,7 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         plt.plot(X_tr, y_tr, '.', ms=5, label='train corrupt') #markersize
         plt.plot(X_val, y_val, '*', ms=5,label='validation')
         plt.plot(X_te, y_te, '.', ms=5, label='test')
-        plt.plot(X, y, 'o', ms=6, alpha=0.3, label='ground truth')
+        plt.plot(X, y, 'ow', ms=6, alpha=0.5, label='ground truth')
         plt.legend()
         # plt.ylim(bottom=0)
         plt.savefig(os.path.join(output_folder2, 'data-%s-%s.png'%(args.func, name+'_'+name1+'_'+name2)))
@@ -289,7 +297,8 @@ def generate_data1(args, noise_seed, sigma, epsilon):
         
         plt.close('all') 
 
-
+    X = torch.from_numpy(X).float()
+    y = torch.from_numpy(y).float()
     X_tr = torch.from_numpy(X_tr).float()
     y_tr = torch.from_numpy(y_tr).float()
     X_te = torch.from_numpy(X_te).float()
@@ -308,7 +317,7 @@ def generate_data1(args, noise_seed, sigma, epsilon):
     
     # print('\nnum of training data %d = batch size %d * iteration %d\n'%(len(train_loader.dataset),  args.batch_size, len(train_loader)))
     
-    return (X_tr, y_tr), (X_val,y_val), (X_te, y_te), (name, name1, name2), \
+    return (X,y), (X_tr, y_tr), (X_val,y_val), (X_te, y_te), (name, name1, name2), \
             (output_folder, output_folder1, output_folder2), \
                 (output_folder_, output_folder1_, output_folder2_), \
                     (train_loader, val_loader, test_loader)
