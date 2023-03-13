@@ -335,7 +335,7 @@ def meta_exec(args, train_loader, val_loader, test_loader, \
                     ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
                     ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
                     ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
-                    ax.plot(X.tolist(), y_hat[:,0].detach().cpu().tolist(), 'ow', ms=6, alpha=0.5, label='fitted')
+                    ax.plot(X.tolist(), y_hat[:,0].detach().cpu().tolist(), 'ow', ms=6, alpha=0.7, label='fitted')
                 ax.set_title('%s with %.3f'%(name_performance, best_val))
                 ax.legend()
                 fig.savefig(os.path.join(output_folder2, name_train_result+'_' +name_performance+'.png')) # +'_'+ name1+'_'+name2
@@ -501,7 +501,7 @@ def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
             normal_lr = 1e-1/(epoch+1) ## 之前用了这个
         elif loss_fn == 'MAE' or 'LAD':
             normal_lr = 1e-2
-        # normal_lr = 1e-4
+        normal_lr = 1e-4
         optimizer = torch.optim.Adam(model.params(), lr=normal_lr, weight_decay=1e-4)
         # optimizer = torch.optim.SGD(model.params(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
         train_loss = train_loop(train_loader, model, loss_fn, hypara, loss_fn1, optimizer)
@@ -549,7 +549,7 @@ def normal_exec(args, loss_hypara, train_loader, val_loader, test_loader,\
                     ax.plot(X_tr.numpy(), y_tr.numpy(), '.', label='train')
                     ax.plot(X_val.numpy(), y_val.numpy(), '*', label='val')
                     ax.plot(X_te.numpy(), y_te.numpy(), '.', label='test')
-                    ax.plot(X.tolist(), y_hat[:,0].detach().cpu().tolist(), 'ow', ms=6, alpha=0.5, label='fitted')
+                    ax.plot(X.tolist(), y_hat[:,0].detach().cpu().tolist(), 'ow', ms=6, alpha=0.7, label='fitted')
                 ax.set_title('%s with best %.3f'%(name_performance, best_val))
                 ax.legend()
                 fig.savefig(os.path.join(output_folder3, name_performance+'.png')) #name_train_result+'_'+
@@ -616,8 +616,8 @@ if __name__ == '__main__':
     print('\n=======================')
 
     ##############################################
-    sigma=0.5 ### 1.2
-    epsilon=0.25 ###
+    sigma=1.2 ### 0.5
+    epsilon=0.2 ###
     noise_seed = 50
     print(f'\n sigma: {sigma} | epsilon: {epsilon} | noise_seed: {noise_seed} \n')
 

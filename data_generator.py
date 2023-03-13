@@ -92,6 +92,30 @@ def generate_data1(args, noise_seed, sigma, epsilon):
                 y = np.log(np.abs(X[:,0] + X[:,1]) + 1)
                 Z = np.log(np.abs(x0+x1) + 1)
         
+        elif '3d' in args.func:
+            num_dims = 3
+            X = np.random.uniform(-1, 1, size=(num_samples, num_dims))
+            if args.func == '3d02':
+                y = np.pi**(X[:,0]*X[:,1])*np.sqrt(2*np.abs(X[:,2]))
+            elif args.func == '3d03':
+                y = np.exp(np.abs(X[:,0]-X[:,1]))+np.abs(X[:,2]*X[:,1])
+            elif args.func == '3d05':
+                y = 1/(1+X[:,0]**2+X[:,1]**2+X[:,2]**2)
+
+        elif '4d' in args.func:
+            num_dims = 4
+            X = np.random.uniform(-1, 1, size=(num_samples, num_dims))
+            if args.func == '4d01':
+                y = np.log(np.abs(X[:,0]+X[:,1])+1) - X[:,2]*X[:,3]
+
+        elif '5d' in args.func:
+            num_dims = 5
+            X = np.random.uniform(-1, 1, size=(num_samples, num_dims))
+            if args.func == '5d01':
+                y = np.pi**(X[:,0]*X[:,1])*np.sqrt(2*np.abs(X[:,2])) + np.log(np.abs(X[:,3]+X[:,4])+1)
+            elif args.func == '5d02':
+                y = 1/(1+X[:,0]**2+X[:,1]**2+X[:,2]**2) + np.abs(X[:,3]+X[:,4])
+        
         elif '10d' in args.func:
             num_dims = 10
             X = np.random.uniform(-1, 1, size=(num_samples, num_dims))

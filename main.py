@@ -133,7 +133,7 @@ def test_all_methods(noise_seed, sigma=3., epsilon=0.3):
         for mode in method3:
             # print('\nStart the %s mode'%mode)
             pred_mse, best_performance, pred_mse_epochs_list, converge_hy = meta_exec(args, train_loader, val_loader, test_loader,\
-                X_tr, y_tr, X_val, y_val, X_te, y_te, output_folder2, name1, name2, mode)
+                X, y, X_tr, y_tr, X_val, y_val, X_te, y_te, output_folder2, name1, name2, mode)
             
             best_test =  min(pred_mse_epochs_list)
             best_test_epoch = pred_mse_epochs_list.index(best_test)
@@ -327,24 +327,24 @@ def test_all_methods_ses_seeds(num_seeds, name_, list_, val_):
 
 
     # #  visualize without the OLS and meta2
-    # fig, ax = plt.subplots()
-    # # fig, ax = plt.subplots(figsize=(15,12))
-    # # fig.suptitle(name1)
-    # # ax.set_title('ave %d seed pred MSE'%num_seeds)
-    # for i in range(1, num_method-1): 
-    #     ax.errorbar(list_, ave_matrix_pred_mse[:,i], \
-    #         yerr=std_matrix_pred_mse[:,i], fmt='o-', label='%s'%methods[i], capsize=3, capthick=2)
-    # ax.set_xlabel(r'%s distribution with value of $\%s$'%(args.noise_type, name_))
-    # ax.set_ylabel('Prediction MSE')
-    # ax.legend() # loc=2
-    # if name_ == 'sigma':
-    #     name_df = '%s+%.3f%s_ave_%dseed_%dmethods_%s_%s'%(name_, val_, 'epsilons',num_seeds, num_method-2, name, timenow)
-    # elif name_ == 'epsilon':
-    #     name_df = '%s+%.3f%s_ave_%dseed_%dmethods_%s_%s'%(name_, val_, 'sigmas',num_seeds, num_method-2, name, timenow)
-    # name_df2 = os.path.join(output_folder, name_df)
-    # name_df2_ = os.path.join(output_folder_, name_df)
-    # fig.savefig(name_df2+'.png')
-    # fig.savefig(name_df2_+'.png')
+    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots(figsize=(15,12))
+    # fig.suptitle(name1)
+    # ax.set_title('ave %d seed pred MSE'%num_seeds)
+    for i in range(1, num_method): 
+        ax.errorbar(list_, ave_matrix_pred_mse[:,i], \
+            yerr=std_matrix_pred_mse[:,i], fmt='o-', label='%s'%methods[i], capsize=3, capthick=2)
+    ax.set_xlabel(r'%s distribution with value of $\%s$'%(args.noise_type, name_))
+    ax.set_ylabel('Prediction MSE')
+    ax.legend() # loc=2
+    if name_ == 'sigma':
+        name_df = '%s+%.3f%s_ave_%dseed_%dmethods_%s_%s'%(name_, val_, 'epsilons',num_seeds, num_method-2, name, timenow)
+    elif name_ == 'epsilon':
+        name_df = '%s+%.3f%s_ave_%dseed_%dmethods_%s_%s'%(name_, val_, 'sigmas',num_seeds, num_method-2, name, timenow)
+    name_df2 = os.path.join(output_folder, name_df)
+    name_df2_ = os.path.join(output_folder_, name_df)
+    fig.savefig(name_df2+'.png')
+    fig.savefig(name_df2_+'.png')
 
     print(noise_seeds)
 
@@ -364,7 +364,7 @@ if __name__ == '__main__':
         taus = [2.0102, 1.345, 0.7317, 0.307, 0.158] + [0.05, 0.01]
         method1 = ['OLS', 'LAD', 'Tukey(4.685)'] + ['Huber(%.3f)'%tau for tau in taus]
     elif args.adap_loss == 'Tukey':
-        taus = [7.041, 4.685, 3.444, 1.722, 0.861]
+        taus = [7.041, 4.685, 3.444, 1.722, 0.861] + [0.3, 0.1, 0.05]
         method1 = ['OLS', 'LAD', 'Huber(1.345)'] + ['Tukey(%.3f)'%tau for tau in taus]
 
 
